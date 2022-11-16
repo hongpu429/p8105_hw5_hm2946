@@ -72,8 +72,40 @@ In the experiment arm: the outcome increases linearly as time passes
 
 ## Problem 2
 
+*read the data*
 ```{r}
 homi_raw = read_csv("data/homicide-data.csv") 
 ```
 
 There are 52179 observations in total, and each observation is identified with uid and reported date. Then it contains name, age and gender of the victims. It describes the city, state, latitude and longitude of the criminal scene. Finally it tells the results of the cases.
+
+*Clean the data*
+```{r}
+homi_tidy1 = homi_raw %>% 
+  mutate(city_state = str_c(city,state,sep = ","),
+         unsolved = ifelse(disposition == c("Closed without arrest","Open/No arrest"),1,0)) %>% 
+  select(city_state,unsolved) %>% 
+  count(city_state) %>% 
+  rename("total_cases" = n)
+
+homi_tidy = homi_raw %>% 
+  mutate(city_state = str_c(city,state,sep = ","),
+         unsolved = ifelse(disposition == c("Closed without arrest","Open/No arrest"),1,0)) %>% 
+  select(city_state,unsolved) %>% 
+  count(city_state, wt = unsolved) %>% 
+  rename("unsolved_cases" = n) %>% 
+  left_join(homi_tidy1)
+```
+
+*Balt test*
+```{r}
+balt_test = homi_tidy %>% 
+  filter(city_state == "Baltimore,MD") %>% 
+  mutate(prop_test = map2(unsolved_cases,total_cases,~prop.test(.x,.y) %>%
+  broom::tidy())) %>% 
+  unnest(cols = c(prop_test))
+
+balt_test %>% 
+  select(city_state,estimate,conf.low,conf.high)
+```
+
