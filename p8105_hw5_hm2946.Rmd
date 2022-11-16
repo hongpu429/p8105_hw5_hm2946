@@ -109,3 +109,23 @@ balt_test %>%
   select(city_state,estimate,conf.low,conf.high)
 ```
 
+*Test all*
+```{r}
+all_test = homi_tidy %>% 
+  mutate(prop_test = map2(unsolved_cases,total_cases,~prop.test(.x,.y) %>%
+  broom::tidy())) %>% 
+  unnest(cols = c(prop_test)) %>% 
+  select(city_state,estimate,conf.low,conf.high)
+```
+
+*Plot*
+```{r}
+all_test %>%  
+  mutate(
+    city_state = fct_reorder(city_state, estimate)) %>%
+  ggplot(aes(x = city_state, y = estimate)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
