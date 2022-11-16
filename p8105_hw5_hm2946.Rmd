@@ -135,6 +135,7 @@ all_test %>%
 set.seed(1)
 ```
 
+*simulation*
 ```{r}
 t_test = function(mu){
   
@@ -156,3 +157,15 @@ sim_results_df =
 
 ```
 
+#### Plot 1
+```{r}
+sim_results_df %>% 
+  select(mu, p.value) %>% 
+  filter(p.value < 0.05) %>% 
+  count(mu) %>% 
+  mutate(null_rejected_proportion = n/50) %>% 
+  ggplot(aes(x = mu, y = null_rejected_proportion)) + 
+  geom_point() 
+```
+
+#### Plot 2
