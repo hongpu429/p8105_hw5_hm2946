@@ -30,6 +30,8 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
 
 ## Problem 1
+
+*read the data*
 ```{r}
 p1_data = 
   tibble(
@@ -56,4 +58,15 @@ p1_tidy =
   select(group, subj = files, week, outcome)
 ```
 
+*plot*
+```{r}
+p1_tidy %>% 
+  ggplot(aes(x = week, y = outcome, group = subj, color = group)) + 
+  geom_point() + 
+  geom_path() + 
+  facet_grid(~group)
+```
+
+In the control arm: the outcome doesn't change much as time passes
+In the experiment arm: the outcome increases linearly as time passes
 
